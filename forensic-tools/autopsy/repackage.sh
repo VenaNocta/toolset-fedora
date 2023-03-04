@@ -33,11 +33,12 @@ gen_spec() {
   printf "# SPEC FILE IS JUST A BLUEPRINT AT THIS POINT!!!\n\n" >  $SPEC_FILE
   printf "Name:           autopsy\n" >>  $SPEC_FILE
   printf "Version:        4.20.0\n" >> $SPEC_FILE
-  printf "Release:        1%%{?dist} \n" >> $SPEC_FILE
+  printf "Release:        1\n" >> $SPEC_FILE
+  printf "BuildArch:      noarch\n" >> $SPEC_FILE
   printf "Summary:        \n\n" >> $SPEC_FILE
   printf "License:        "$LICENSE"\n" >> $SPEC_FILE
   printf "URL:            https://www.sleuthkit.org/autopsy/\n" >> $SPEC_FILE
-  printf "Source0:        \n\n" >> $SPEC_FILE
+  printf "Source0:        %%{name}-%%{version}.tar.gz\n\n" >> $SPEC_FILE
   printf "Requires:       testdisk\n" >> $SPEC_FILE
   printf "Requires:       java-1.8.0-openjdk\n" >> $SPEC_FILE
   printf "Requires:       sleuthkit\n" >> $SPEC_FILE

@@ -32,13 +32,13 @@ print_info() {
 gen_spec() {
   printf "# SPEC FILE IS JUST A BLUEPRINT AT THIS POINT!!!\n\n" >  $SPEC_FILE
   printf "Name:           autopsy\n" >>  $SPEC_FILE
-  printf "Version:        4.20.0\n" >> $SPEC_FILE
+  printf "Version:        "$VERSION"\n" >> $SPEC_FILE
   printf "Release:        1\n" >> $SPEC_FILE
   printf "BuildArch:      noarch\n" >> $SPEC_FILE
-  printf "Summary:        \n\n" >> $SPEC_FILE
+  printf "Summary:        Autopsy repackaged for RPM based systems\n\n" >> $SPEC_FILE
   printf "License:        "$LICENSE"\n" >> $SPEC_FILE
   printf "URL:            https://www.sleuthkit.org/autopsy/\n" >> $SPEC_FILE
-  printf "Source0:        %%{name}-%%{version}.tar.gz\n\n" >> $SPEC_FILE
+  printf "Source0:        %%{name}-%%{version}.zip\n\n" >> $SPEC_FILE
   printf "Requires:       testdisk\n" >> $SPEC_FILE
   printf "Requires:       java-1.8.0-openjdk\n" >> $SPEC_FILE
   printf "Requires:       sleuthkit\n" >> $SPEC_FILE
@@ -46,12 +46,20 @@ gen_spec() {
   printf "%%description\n" >> $SPEC_FILE
   printf "\n" >> $SPEC_FILE
   printf "%%prep\n" >> $SPEC_FILE
-  printf "%%autosetup\n" >> $SPEC_FILE
-  printf "\n" >> $SPEC_FILE
-  printf "%%build\n" >> $SPEC_FILE
+  printf "rm -rf %%{_builddir}/%%{name}-%%{version}/\n" >> $SPEC_FILE
+  printf "unzip -d %%{_builddir} %%{_sourcedir}/%%{name}-%%{version}.zip\n" >> $SPEC_FILE
   printf "\n" >> $SPEC_FILE
   printf "%%install\n" >> $SPEC_FILE
-  printf "%%make_install\n" >> $SPEC_FILE
+  printf "rm -rf \$RPM_BUILD_ROOT\n" >> $SPEC_FILE
+  printf "mkdir -p \$RPM_BUILD_ROOT/%%{_bindir}\n" >> $SPEC_FILE
+  printf "\n" >> $SPEC_FILE
+  printf "\n" >> $SPEC_FILE
+  printf "\n" >> $SPEC_FILE
+  printf "\n" >> $SPEC_FILE
+  printf "\n" >> $SPEC_FILE
+  printf "\n" >> $SPEC_FILE
+  printf "\n" >> $SPEC_FILE
+  printf "\n" >> $SPEC_FILE
   printf "\n" >> $SPEC_FILE
   printf "%%files\n" >> $SPEC_FILE
   printf "%%license LICENSE-2.0.txt\n" >> $SPEC_FILE
@@ -89,7 +97,7 @@ if $CLEAN; then
 fi
 
 rpmdev-setuptree
-mkdir -p $WORKSPACE/REPACK
+mkdir -p $WORKSPACE/BUILD
 
 # info
 if $INFO; then
@@ -101,27 +109,13 @@ ORIG_PACKAGE="autopsy-"$VERSION".zip"
 
 printf "=== SOURCES\n"
 printf ">>    URL                   = "$URL"\n"
-printf ">>    FILE                  = "$WORKSPACE"/REPACK/"$ORIG_PACKAGE"\n"
+printf ">>    FILE                  = "$WORKSPACE"/BUILD/"$ORIG_PACKAGE"\n"
 printf "  ____________________________________________________________________________\n"
-if [ -f $WORKSPACE"/REPACK/"$ORIG_PACKAGE ]; then
+if [ -f $WORKSPACE"/SOURCES/"$ORIG_PACKAGE ]; then
   printf ">>    file located          » skipping download\n"
 else
   printf ">>    file missing          » download from GitHub Releases\n\n"
-  curl -L -o $WORKSPACE"/REPACK/"$ORIG_PACKAGE $URL
-fi
-
-TAR_GZ_PACKAGE="autopsy-"$VERSION".tar.gz"
-printf "=== REBUILDING \n"
-printf ">>    URL                   = "$URL"\n"
-printf ">>    ORIGINAL              = "$WORKSPACE"/REPACK/"$ORIG_PACKAGE"\n"
-printf ">>    TARGET                = "$WORKSPACE"/REPACK/"$TAR_GZ_PACKAGE"\n"
-printf "  ____________________________________________________________________________\n"
-
-if [ -d $WORKSPACE"/REPACK/autopsy-"$VERSION ]; then
-  printf ">>    extracting            » folder exists\n"
-else
-  printf ">>    extracting            » unzipping original\n"
-  unzip -d $WORKSPACE"/REPACK/" $WORKSPACE"/REPACK/"$ORIG_PACKAGE
+  curl -L -o $WORKSPACE"/SOURCES/"$ORIG_PACKAGE $URL
 fi
 
 # repackage with just the required files!!!
@@ -132,11 +126,12 @@ printf "=== BUILDING RPM \n"
 printf ">>    SPEC FILE             = "$SPEC_FILE"\n"
 printf ">>    RPM                   = ???\n"
 printf "  ____________________________________________________________________________\n"
-printf ">>    (1)                   » compiling spec file\n"
+printf ">>    (1)                   » compiling autopsy.spec file\n"
 gen_spec
-
-
-
+printf ">>    (2)                   » building autopsy-"$VERSION"-1.src.rpm\n"
+rpmbuild -bs $SPEC_FILE
+printf ">>    (3)                   » building autopsy-"$VERSION"-1.rpm\n"
+rpmbuild -bb $SPEC_FILE
 
 
 

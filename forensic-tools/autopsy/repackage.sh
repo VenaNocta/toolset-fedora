@@ -9,7 +9,6 @@ LICENSE="Apache-2.0"
 
 print_help() {
   printf ">>> REPACKAGE AUTOPSY\n\n";
-  printf "  -d | --dry-run             ... dont execute commands\n\n"
   printf "  -c | --clean               ... clean build path\n"
   printf "  -i | --info                ... show info\n"
   printf "  ____________________________________________________________________________\n"
@@ -30,11 +29,10 @@ print_info() {
 }
 
 gen_spec() {
-  printf "# SPEC FILE IS JUST A BLUEPRINT AT THIS POINT!!!\n\n" >  $SPEC_FILE
-  printf "Name:           autopsy-core\n" >>  $SPEC_FILE
+  printf "Name:           autopsy-core\n" >  $SPEC_FILE
   printf "Version:        "$VERSION"\n" >> $SPEC_FILE
   printf "Release:        1\n" >> $SPEC_FILE
-  printf "BuildArch:      noarch\n" >> $SPEC_FILE
+  printf "ExclusiveArch:  %{java_arches} x86_64\n" >> $SPEC_FILE
   printf "Summary:        Autopsy repackaged for RPM based systems\n\n" >> $SPEC_FILE
   printf "License:        "$LICENSE"\n" >> $SPEC_FILE
   printf "URL:            https://www.sleuthkit.org/autopsy/\n" >> $SPEC_FILE
@@ -47,53 +45,75 @@ gen_spec() {
   printf "\n" >> $SPEC_FILE
   printf "%%prep\n" >> $SPEC_FILE
   printf "rm -rf %%{_builddir}/%%{name}-%%{version}/\n" >> $SPEC_FILE
-  printf "\n" >> $SPEC_FILE
+  printf "mkdir -p %%{_builddir}/%%{name}-%%{version}\n" >> $SPEC_FILE
+  printf "pushd %%{_builddir}/%%{name}-%%{version}\n" >> $SPEC_FILE
+  printf "tar -xf %%{_sourcedir}/%%{name}-%%{version}.tar.xz\n" >> $SPEC_FILE
+  printf "popd\n" >> $SPEC_FILE
   printf "\n" >> $SPEC_FILE
   printf "%%install\n" >> $SPEC_FILE
-  printf "rm -rf \$RPM_BUILD_ROOT\n" >> $SPEC_FILE
-  printf "mkdir -p \$RPM_BUILD_ROOT/%%{_bindir}\n" >> $SPEC_FILE
+  printf "rm -rf %%{buildroot}\n" >> $SPEC_FILE
+  printf "# copy files to target\n" >> $SPEC_FILE
+  printf "pushd  %%{_builddir}/%%{name}-%%{version}\n" >> $SPEC_FILE
+  printf "mkdir -p %%{buildroot}%%{_bindir}/\n" >> $SPEC_FILE
+  printf "cp -n  bin/autopsy     %%{buildroot}%%{_bindir}/\n" >> $SPEC_FILE
+  printf "mkdir -p %%{buildroot}%%{_sysconfdir}/\n" >> $SPEC_FILE
+  printf "cp -nr etc/*           %%{buildroot}%%{_sysconfdir}/\n" >> $SPEC_FILE
+  printf "mkdir -p %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
+  printf "cp -n  README.txt      %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
+  printf "cp -n  CHANGELOG.txt   %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
+  printf "cp -n  LICENSE-2.0.txt %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
+  printf "cp -nr autopsy/        %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
+  printf "cp -nr java/           %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
+  printf "cp -nr platform/       %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
+  printf "# move ico somewhere else\n" >> $SPEC_FILE
+  printf "cp -n  icon.ico        %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
+  printf "mkdir -p %%{buildroot}%%{_docdir}/autopsy/\n" >> $SPEC_FILE
+  printf "cp -nr docs/*          %%{buildroot}%%{_docdir}/autopsy/\n" >> $SPEC_FILE
   printf "\n" >> $SPEC_FILE
-#        awk '!/^\s*#?\s*jdkhome=.*$/' etc/$APPLICATION_NAME.conf > etc/$APPLICATION_NAME.conf.tmp && \
-#        mv etc/$APPLICATION_NAME.conf.tmp etc/$APPLICATION_NAME.conf && \
-#        echo "jdkhome=$JAVA_PATH" >> etc/$APPLICATION_NAME.conf
-# make sure thirdparty files are executable
-#chmod u+x autopsy/markmckinnon/Export*
-#chmod u+x autopsy/markmckinnon/parse*
-#
-# allow solr dependencies to execute
-#chmod -R u+x autopsy/solr/bin
-#
-# make sure it is executable
-#chmod u+x bin/$APPLICATION_NAME
+  printf "popd\n" >> $SPEC_FILE
+  printf "# update jdkhome\n" >> $SPEC_FILE
+  printf "awk '!/^\s*#?\s*jdkhome=.*$/' %%{name}-%%{version}/etc/autopsy.conf > %%{buildroot}%%{_sysconfdir}/autopsy.conf\n" >> $SPEC_FILE
+  printf "printf \"jdkhome=/usr/lib/jvm/java-1.8.0-openjdk\\" >> $SPEC_FILE
+  printf "n\" >> %%{buildroot}%%{_sysconfdir}/autopsy.conf\n" >> $SPEC_FILE
   printf "\n" >> $SPEC_FILE
+  printf "# make sure thirdparty files are executable\n" >> $SPEC_FILE
+  printf "chmod +x %%{buildroot}%%{_libdir}/autopsy/autopsy/markmckinnon/Export*\n" >> $SPEC_FILE
+  printf "chmod +x %%{buildroot}%%{_libdir}/autopsy/autopsy/markmckinnon/parse*\n" >> $SPEC_FILE
+  printf "# allow solr dependencies to execute\n" >> $SPEC_FILE
+  printf "chmod -R +x %%{buildroot}%%{_libdir}/autopsy/autopsy/solr/bin\n" >> $SPEC_FILE
+  printf "# make sure the start script is executable\n" >> $SPEC_FILE
+  printf "chmod +x %%{buildroot}%%{_bindir}/autopsy\n" >> $SPEC_FILE
+  printf "# stop the toolkit from doing other stuff\n" >> $SPEC_FILE
+  printf "exit 0\n" >> $SPEC_FILE
   printf "\n" >> $SPEC_FILE
-  printf "\n" >> $SPEC_FILE
-  printf "\n" >> $SPEC_FILE
-  printf "\n" >> $SPEC_FILE
-  printf "\n" >> $SPEC_FILE
-  printf "\n" >> $SPEC_FILE
+  printf "%clean\n" >> $SPEC_FILE
+  printf "rm -rf %%{buildroot}\n" >> $SPEC_FILE
   printf "\n" >> $SPEC_FILE
   printf "%%files\n" >> $SPEC_FILE
-  printf "%%license LICENSE-2.0.txt\n" >> $SPEC_FILE
-  printf "%%doc add-docs-here\n" >> $SPEC_FILE
+  printf "%%config %%{_sysconfdir}/autopsy.clusters\n" >> $SPEC_FILE
+  printf "%%config %%{_sysconfdir}/autopsy.conf\n" >> $SPEC_FILE
+  printf "%%docdir %%{_docdir}/autopsy/\n" >> $SPEC_FILE
+  printf "%%license %%{_libdir}/autopsy/LICENSE-2.0.txt\n" >> $SPEC_FILE
+  printf "%%{_bindir}/autopsy\n" >> $SPEC_FILE
+  printf "%%{_libdir}/autopsy/\n" >> $SPEC_FILE
   printf "\n" >> $SPEC_FILE
-  printf "%%changelog\n" >> $SPEC_FILE
-  cat $WORKSPACE"/REPACK/autopsy-"$VERSION"/NEWS.txt" >> $SPEC_FILE
-  printf "\n" >> $SPEC_FILE
+# changelog redacted - file structure mismatch
+#  printf "%%changelog\n" >> $SPEC_FILE
+#  cat $WORKSPACE"/REPACK/autopsy-"$VERSION"/NEWS.txt" >> $SPEC_FILE
+#  printf "\n" >> $SPEC_FILE
 }
 
 patch_autopsy() {
-  printf ">>    (3.1)                    » patching bin/autopsy\n"
   cp $(dirname $0)"/patches/bin/autopsy" $WORKSPACE"/REPACK/autopsy-"$VERSION"/bin/autopsy"
 }
 
 pack_autopsy_core() {
-  printf ">>    (4.1)                    » building autopsy-core-"$VERSION".tar.xz\n"
   pushd $WORKSPACE"/REPACK/autopsy-"$VERSION
-  tar -I "pxz -9" -cvf $WORKSPACE"/SOURCES/autopsy-core-"$VERSION".tar.xz" \
-      icon.ico LICENSE-2.0.txt README.txt \
+  [ -f NEWS.txt ] && mv NEWS.txt CHANGELOG.txt
+  tar -I "pxz -9" -cf $WORKSPACE"/SOURCES/autopsy-core-"$VERSION".tar.xz" \
+      icon.ico LICENSE-2.0.txt README.txt CHANGELOG.txt \
       bin/autopsy \
-      etc platform java docs
+      etc autopsy platform java docs
   popd
 }
 
@@ -101,9 +121,6 @@ while [ True ]; do
 if [ "$1" = "--help" -o "$1" = "-h" ]; then
   print_help
   exit 0
-elif [ "$1" = "--dry-run" -o "$1" = "-d" ]; then
-  DRY_RUN=true
-  shift 1
 elif [ "$1" = "--clean" -o "$1" = "-c" ]; then
   CLEAN=true
   shift 1
@@ -146,18 +163,28 @@ else
   printf ">>    (1) zip archive missing  » download from GitHub Releases\n\n"
   curl -L -o $WORKSPACE"/REPACK/"$ORIG_PACKAGE $URL
 fi
+
+# unpack
 if [ -d $WORKSPACE"/REPACK/autopsy-"$VERSION ]; then
   printf ">>    (2) data located         » skipping decompression\n"
 else
   printf ">>    (2) data missing         » unpacking archive\n"
   unzip -qod $WORKSPACE"/REPACK/" $WORKSPACE"/REPACK/"$ORIG_PACKAGE
 fi
+
+# patch
 printf ">>    (3)                      » patching data\n"
+printf ">>    (3.1)                    » patching bin/autopsy\n"
 patch_autopsy
-printf ">>    (4)                      » building compressed archives\n"
-#pack_autopsy_core
 
 # repackage with just the required files!!!
+printf ">>    (4)                      » building compressed archives\n"
+if [ -f $WORKSPACE"/SOURCES/autopsy-core-"$VERSION".tar.xz" ]; then
+  printf ">>    (4.1)                    » found autopsy-core-"$VERSION".tar.xz\n"
+else
+  printf ">>    (4.1)                    » building autopsy-core-"$VERSION".tar.xz\n"
+  pack_autopsy_core
+fi
 
 
 SPEC_FILE=$WORKSPACE/SPECS/autopsy-core.spec
@@ -168,9 +195,9 @@ printf "  ______________________________________________________________________
 printf ">>    (1)                      » compiling autopsy.spec file\n"
 gen_spec
 printf ">>    (2)                      » building autopsy-core-"$VERSION"-1.src.rpm\n"
-#rpmbuild -bs $SPEC_FILE
+rpmbuild -bs $SPEC_FILE
 printf ">>    (3)                      » building autopsy-core-"$VERSION"-1.rpm\n"
-#rpmbuild -bb $SPEC_FILE
+rpmbuild -bb $SPEC_FILE
 
 
 

@@ -105,7 +105,7 @@ popd
 exit 0
 
 %clean
-#rm -rf %{buildroot}
+rm -rf %{buildroot}
 
 ## sleuthkit-core
 %files core

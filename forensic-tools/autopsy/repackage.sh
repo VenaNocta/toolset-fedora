@@ -65,19 +65,20 @@ gen_spec() {
   printf "cp -nr autopsy/                       %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
   printf "cp -nr java/                          %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
   printf "cp -nr platform/                      %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
+## for some reason it already contains TSK
+#  printf "mkdir -p %%{buildroot}%%{_libdir}/autopsy/autopsy/modules/ext/\n" >> $SPEC_FILE
+#  printf "ln -s  %%{_libdir}/sleuthkit.jar      %%{buildroot}%%{_libdir}/autopsy/autopsy/modules/ext/sleuthkit.jar\n" >> $SPEC_FILE
   printf "mkdir -p %%{buildroot}%%{_datadir}/applications/\n" >> $SPEC_FILE
   printf "cp -n  org.sleuthkit.autopsy.desktop  %%{buildroot}%%{_datadir}/applications/\n" >> $SPEC_FILE
   printf "mkdir -p %%{buildroot}%%{_datadir}/icons/autopsy/\n" >> $SPEC_FILE
   printf "cp -n  autopsy.png                    %%{buildroot}%%{_datadir}/icons/autopsy/\n" >> $SPEC_FILE
   printf "mkdir -p %%{buildroot}%%{_docdir}/autopsy/\n" >> $SPEC_FILE
   printf "cp -nr docs/*                         %%{buildroot}%%{_docdir}/autopsy/\n" >> $SPEC_FILE
-  printf "\n" >> $SPEC_FILE
   printf "popd\n" >> $SPEC_FILE
   printf "# update jdkhome\n" >> $SPEC_FILE
   printf "awk '!/^\s*#?\s*jdkhome=.*$/' %%{name}-%%{version}/etc/autopsy.conf > %%{buildroot}%%{_sysconfdir}/autopsy.conf\n" >> $SPEC_FILE
   printf "printf \"jdkhome=/usr/lib/jvm/java-1.8.0-openjdk\\" >> $SPEC_FILE
   printf "n\" >> %%{buildroot}%%{_sysconfdir}/autopsy.conf\n" >> $SPEC_FILE
-  printf "\n" >> $SPEC_FILE
   printf "# make sure thirdparty files are executable\n" >> $SPEC_FILE
   printf "chmod +x %%{buildroot}%%{_libdir}/autopsy/autopsy/markmckinnon/Export*\n" >> $SPEC_FILE
   printf "chmod +x %%{buildroot}%%{_libdir}/autopsy/autopsy/markmckinnon/parse*\n" >> $SPEC_FILE
@@ -93,14 +94,14 @@ gen_spec() {
   printf "\n" >> $SPEC_FILE
   printf "%%files\n" >> $SPEC_FILE
   printf "%%{_datadir}/applications/org.sleuthkit.autopsy.desktop\n" >> $SPEC_FILE
-  printf "%%config(noreplace) %%{_sysconfdir}/autopsy.clusters\n" >> $SPEC_FILE
-  printf "%%config(noreplace) %%{_sysconfdir}/autopsy.conf\n" >> $SPEC_FILE
-  printf "%%docdir %%{_docdir}/autopsy/\n" >> $SPEC_FILE
-  printf "%%license %%{_libdir}/autopsy/LICENSE-2.0.txt\n" >> $SPEC_FILE
   printf "%%{_bindir}/autopsy\n" >> $SPEC_FILE
   printf "%%{_libdir}/autopsy/\n" >> $SPEC_FILE
   printf "%%{_datadir}/icons/autopsy/\n" >> $SPEC_FILE
   printf "%%{_docdir}/autopsy/\n" >> $SPEC_FILE
+  printf "%%config(noreplace) %%{_sysconfdir}/autopsy.clusters\n" >> $SPEC_FILE
+  printf "%%config(noreplace) %%{_sysconfdir}/autopsy.conf\n" >> $SPEC_FILE
+  printf "%%docdir            %%{_docdir}/autopsy/\n" >> $SPEC_FILE
+  printf "%%license           %%{_libdir}/autopsy/LICENSE-2.0.txt\n" >> $SPEC_FILE
   printf "\n" >> $SPEC_FILE
 # changelog redacted - file structure mismatch
 #  printf "%%changelog\n" >> $SPEC_FILE
@@ -160,8 +161,12 @@ VERSION=$(printf $GIT_TAG | cut --delimiter='-' --fields=2)
 
 # clear
 if $CLEAN; then
-  printf "=== CLEAN $WORKSPACE/*\n\n"
-  rm -rf $WORKSPACE/*
+  printf "=== CLEAN $WORKSPACE/...\n\n"
+  rm -rf $WORKSPACE/REPACK/autopsy-${VERSION}*
+  rm -rf $WORKSPACE/BUILD/autopsy-core-${VERSION}*
+  rm -rf $WORKSPACE/BUILDROOT/autopsy-core-${VERSION}*
+  rm -rf $WORKSPACE/SOURCES/autopsy-core-${VERSION}*
+  rm -f  $WORKSPACE/SPECS/autopsy-core-${VERSION}.spec
 fi
 
 rpmdev-setuptree
@@ -208,8 +213,7 @@ else
   pack_autopsy_core
 fi
 
-
-SPEC_FILE=$WORKSPACE/SPECS/autopsy-core.spec
+SPEC_FILE=$WORKSPACE/SPECS/autopsy-core-${VERSION}.spec
 printf "=== BUILDING RPM \n"
 printf ">>    SPEC FILE                = "$SPEC_FILE"\n"
 printf ">>    RPM                      = autopsy-core-"$VERSION"-1.x86_64.rpm\n"

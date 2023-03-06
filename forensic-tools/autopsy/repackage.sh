@@ -93,8 +93,8 @@ gen_spec() {
   printf "\n" >> $SPEC_FILE
   printf "%%files\n" >> $SPEC_FILE
   printf "%%{_datadir}/applications/org.sleuthkit.autopsy.desktop\n" >> $SPEC_FILE
-  printf "%%config %%{_sysconfdir}/autopsy.clusters\n" >> $SPEC_FILE
-  printf "%%config %%{_sysconfdir}/autopsy.conf\n" >> $SPEC_FILE
+  printf "%%config(noreplace) %%{_sysconfdir}/autopsy.clusters\n" >> $SPEC_FILE
+  printf "%%config(noreplace) %%{_sysconfdir}/autopsy.conf\n" >> $SPEC_FILE
   printf "%%docdir %%{_docdir}/autopsy/\n" >> $SPEC_FILE
   printf "%%license %%{_libdir}/autopsy/LICENSE-2.0.txt\n" >> $SPEC_FILE
   printf "%%{_bindir}/autopsy\n" >> $SPEC_FILE

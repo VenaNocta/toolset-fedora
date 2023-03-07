@@ -39,9 +39,11 @@ gen_spec() {
   printf "URL:            https://www.sleuthkit.org/autopsy/\n" >> $SPEC_FILE
   printf "Source0:        %%{name}-%%{version}.tar.xz\n\n" >> $SPEC_FILE
   printf "AutoReqProv: no\n" >> $SPEC_FILE
+  printf "BuildRequires:  sleuthkit-java-bindings = "$TSK_VERSION"\n" >> $SPEC_FILE
   printf "Requires:       testdisk\n" >> $SPEC_FILE
   printf "Requires:       java-1.8.0-openjdk\n" >> $SPEC_FILE
-  printf "Requires:       sleuthkit-java-bindings\n" >> $SPEC_FILE
+  printf "Requires:       sleuthkit-java-bindings = "$TSK_VERSION"\n" >> $SPEC_FILE
+  printf "#Requires:       opencv-java\n" >> $SPEC_FILE
   printf "\n" >> $SPEC_FILE
   printf "%%description\n" >> $SPEC_FILE
   printf "\n" >> $SPEC_FILE
@@ -67,9 +69,16 @@ gen_spec() {
   printf "cp -nr autopsy/                       %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
   printf "cp -nr java/                          %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
   printf "cp -nr platform/                      %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
-## for some reason it already contains TSK
-#  printf "mkdir -p %%{buildroot}%%{_libdir}/autopsy/autopsy/modules/ext/\n" >> $SPEC_FILE
-#  printf "ln -s  %%{_libdir}/sleuthkit.jar      %%{buildroot}%%{_libdir}/autopsy/autopsy/modules/ext/sleuthkit.jar\n" >> $SPEC_FILE
+  printf "cp -nr CoreTestLibs/                  %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
+  printf "cp -nr harness/                       %%{buildroot}%%{_libdir}/autopsy/\n" >> $SPEC_FILE
+  printf "## for some reason autopsy already contains TSK -> which are missing their native files!!!\n" >> $SPEC_FILE
+  printf "mkdir -p %%{buildroot}%%{_libdir}/autopsy/autopsy/modules/ext/\n" >> $SPEC_FILE
+  printf "## we'll link the jars version independent once we know how to load them as librarys in netbeans\n" >> $SPEC_FILE
+  printf "#ln -s  %%{_libdir}/sleuthkit.jar          %%{buildroot}%%{_libdir}/autopsy/autopsy/modules/ext/sleuthkit.jar\n" >> $SPEC_FILE
+  printf "#ln -s  %%{_javadir}/sleuthkit-caseuco.jar %%{buildroot}%%{_libdir}/autopsy/autopsy/modules/ext/sleuthkit-caseuco.jar\n" >> $SPEC_FILE
+  printf "## until that happens -> we copy\n" >> $SPEC_FILE
+  printf "cp -n  %%{_jnidir}/sleuthkit/sleuthkit-"$TSK_VERSION".jar          %%{buildroot}%%{_libdir}/autopsy/autopsy/modules/ext/sleuthkit.jar\n" >> $SPEC_FILE
+  printf "cp -n  %%{_javadir}/sleuthkit/sleuthkit-caseuco-"$TSK_VERSION".jar %%{buildroot}%%{_libdir}/autopsy/autopsy/modules/ext/sleuthkit-caseuco.jar\n" >> $SPEC_FILE
   printf "mkdir -p %%{buildroot}%%{_datadir}/applications/\n" >> $SPEC_FILE
   printf "cp -n  org.sleuthkit.autopsy.desktop  %%{buildroot}%%{_datadir}/applications/\n" >> $SPEC_FILE
   printf "mkdir -p %%{buildroot}%%{_datadir}/icons/autopsy/\n" >> $SPEC_FILE
@@ -132,14 +141,17 @@ patch_autopsy() {
   printf "Terminal=false\n"                                    >> $DESKTOP_FILE
   printf "Type=Application\n"                                  >> $DESKTOP_FILE
   printf "Categories=Utility;System;\n"                        >> $DESKTOP_FILE
+  printf ">>    (3.5)                    » parsing sleuthkit (TSK) version\n"
+  TSK_VERSION=$(cat $WORKSPACE"/REPACK/autopsy-"$VERSION"/unix_setup.sh" | grep TSK_VERSION= | cut --delimiter='=' --fields=2)
+  printf ">>                             » version: "$TSK_VERSION"\n"
 }
 
-pack_autopsy_core() {
+pack_autopsy() {
   pushd $WORKSPACE"/REPACK/autopsy-"$VERSION
   tar -I "pxz -9" -cf $WORKSPACE"/SOURCES/autopsy-core-"$VERSION".tar.xz" \
       icon.ico LICENSE-2.0.txt README.txt CHANGELOG.txt \
       bin/autopsy autopsy.png org.sleuthkit.autopsy.desktop \
-      etc autopsy platform java docs
+      etc autopsy platform java docs CoreTestLibs harness
   popd
 }
 
@@ -212,7 +224,7 @@ if [ -f $WORKSPACE"/SOURCES/autopsy-core-"$VERSION".tar.xz" ]; then
   printf ">>    (4.1)                    » found autopsy-core-"$VERSION".tar.xz\n"
 else
   printf ">>    (4.1)                    » building autopsy-core-"$VERSION".tar.xz\n"
-  pack_autopsy_core
+  pack_autopsy
 fi
 
 SPEC_FILE=$WORKSPACE/SPECS/autopsy-core-${VERSION}.spec

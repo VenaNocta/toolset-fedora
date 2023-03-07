@@ -9,9 +9,11 @@ URL:            https://www.sleuthkit.org/autopsy/
 Source0:        %{name}-%{version}.tar.xz
 
 AutoReqProv: no
+BuildRequires:  sleuthkit-java-bindings = 4.12.0
 Requires:       testdisk
 Requires:       java-1.8.0-openjdk
-Requires:       sleuthkit-java-bindings
+Requires:       sleuthkit-java-bindings = 4.12.0
+#Requires:       opencv-java
 
 %description
 
@@ -37,6 +39,16 @@ cp -n  LICENSE-2.0.txt                %{buildroot}%{_libdir}/autopsy/
 cp -nr autopsy/                       %{buildroot}%{_libdir}/autopsy/
 cp -nr java/                          %{buildroot}%{_libdir}/autopsy/
 cp -nr platform/                      %{buildroot}%{_libdir}/autopsy/
+cp -nr CoreTestLibs/                  %{buildroot}%{_libdir}/autopsy/
+cp -nr harness/                       %{buildroot}%{_libdir}/autopsy/
+## for some reason autopsy already contains TSK -> which are missing their native files!!!
+mkdir -p %{buildroot}%{_libdir}/autopsy/autopsy/modules/ext/
+## we'll link the jars version independent once we know how to load them as librarys in netbeans
+#ln -s  %{_libdir}/sleuthkit.jar          %{buildroot}%{_libdir}/autopsy/autopsy/modules/ext/sleuthkit.jar
+#ln -s  %{_javadir}/sleuthkit-caseuco.jar %{buildroot}%{_libdir}/autopsy/autopsy/modules/ext/sleuthkit-caseuco.jar
+## until that happens -> we copy
+cp -n  %{_jnidir}/sleuthkit/sleuthkit-4.12.0.jar          %{buildroot}%{_libdir}/autopsy/autopsy/modules/ext/sleuthkit.jar
+cp -n  %{_javadir}/sleuthkit/sleuthkit-caseuco-4.12.0.jar %{buildroot}%{_libdir}/autopsy/autopsy/modules/ext/sleuthkit-caseuco.jar
 mkdir -p %{buildroot}%{_datadir}/applications/
 cp -n  org.sleuthkit.autopsy.desktop  %{buildroot}%{_datadir}/applications/
 mkdir -p %{buildroot}%{_datadir}/icons/autopsy/

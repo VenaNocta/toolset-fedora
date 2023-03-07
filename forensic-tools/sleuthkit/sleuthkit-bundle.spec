@@ -54,7 +54,7 @@ popd
 %build
 pushd %{_builddir}/%{name}-%{version}/sleuthkit-%{version}/
 JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk ./configure --disable-cppunit --enable-java --prefix %{_builddir}/%{name}-%{version}/target/ --exec-prefix=%{_builddir}/%{name}-%{version}/target/
-make
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk JAVACMD=/usr/lib/jvm/java-1.8.0-openjdk/bin/java make
 make install
 popd
 pushd %{_builddir}/%{name}-%{version}/target/

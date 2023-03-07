@@ -6,6 +6,7 @@ CLEAN=false
 INFO=false
 # info from manual lookup
 LICENSE="Apache-2.0" 
+RELEASE="1"
 
 print_help() {
   printf ">>> REPACKAGE AUTOPSY\n\n";
@@ -31,12 +32,13 @@ print_info() {
 gen_spec() {
   printf "Name:           autopsy-core\n" >  $SPEC_FILE
   printf "Version:        "$VERSION"\n" >> $SPEC_FILE
-  printf "Release:        1\n" >> $SPEC_FILE
+  printf "Release:        "$RELEASE"\n" >> $SPEC_FILE
   printf "ExclusiveArch:  %%{java_arches} x86_64\n" >> $SPEC_FILE
   printf "Summary:        Autopsy repackaged for RPM based systems\n\n" >> $SPEC_FILE
   printf "License:        "$LICENSE"\n" >> $SPEC_FILE
   printf "URL:            https://www.sleuthkit.org/autopsy/\n" >> $SPEC_FILE
   printf "Source0:        %%{name}-%%{version}.tar.xz\n\n" >> $SPEC_FILE
+  printf "AutoReqProv: no\n" >> $SPEC_FILE
   printf "Requires:       testdisk\n" >> $SPEC_FILE
   printf "Requires:       java-1.8.0-openjdk\n" >> $SPEC_FILE
   printf "Requires:       sleuthkit-java-bindings\n" >> $SPEC_FILE
@@ -216,7 +218,8 @@ fi
 SPEC_FILE=$WORKSPACE/SPECS/autopsy-core-${VERSION}.spec
 printf "=== BUILDING RPM \n"
 printf ">>    SPEC FILE                = "$SPEC_FILE"\n"
-printf ">>    RPM                      = autopsy-core-"$VERSION"-1.x86_64.rpm\n"
+printf ">>    SRPM                     = autopsy-core-"$VERSION"-"$RELEASE".src.rpm\n"
+printf ">>    RPM                      = autopsy-core-"$VERSION"-"$RELEASE".x86_64.rpm\n"
 printf "  ____________________________________________________________________________\n"
 printf ">>    (1)                      » compiling autopsy.spec file\n"
 gen_spec

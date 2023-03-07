@@ -8,6 +8,7 @@ License:        Apache-2.0
 URL:            https://www.sleuthkit.org/autopsy/
 Source0:        %{name}-%{version}.tar.xz
 
+AutoReqProv: no
 Requires:       testdisk
 Requires:       java-1.8.0-openjdk
 Requires:       sleuthkit-java-bindings

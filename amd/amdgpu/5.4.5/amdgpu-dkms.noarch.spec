@@ -20,6 +20,9 @@ Requires:		rpmlib(FileDigests)				<= 4.6.0-1
 Requires:		rpmlib(PayloadFilesHavePrefix)	<= 4.0-1
 Requires:		rpmlib(PayloadIsXz)				<= 5.2-1
 
+%description
+The AMD display driver kernel module in DKMS format for AMD graphics S/W
+
 %package firmware
 Summary:		Firmware for amdgpu-dkms
 

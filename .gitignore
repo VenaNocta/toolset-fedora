@@ -1,0 +1,4 @@
+# as we are often repackaging software open-source & proprietary
+# exclude all completed packages from git
+**/*.rpm
+

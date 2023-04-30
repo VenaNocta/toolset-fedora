@@ -1,4 +1,5 @@
 Name:			amdgpu-dkms
+Summary:		The amdgpu Linux kernel driver
 Version:		5.18.13.50405
 Release:		1577590%{?dist}
 License:		GPLv2 and Redistributable, no modification permitted
@@ -19,7 +20,23 @@ Requires:		rpmlib(FileDigests)				<= 4.6.0-1
 Requires:		rpmlib(PayloadFilesHavePrefix)	<= 4.0-1
 Requires:		rpmlib(PayloadIsXz)				<= 5.2-1
 
-%post:
+%package firmware
+Summary:		Firmware for amdgpu-dkms
+
+%description firmware
+The AMD display driver firmware blobs used by kernel module in DKMS format
+
+%package headers
+Summary:		Header files for the AMD display driver kernel module
+Group:			Development/Libraries
+
+%description headers
+amdgpu-dkms-headers includes a subset of the C header files that specify the
+interface between the Linux kernel and userspace libraries and programs. This
+package only contains amdgpu-dkms headers that may differ from the files from
+the kernel-headers package.
+
+%post
 rc=0
 postinst=/usr/libexec/dkms/common.postinst
 

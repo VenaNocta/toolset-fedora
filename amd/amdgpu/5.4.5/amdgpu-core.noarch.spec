@@ -9,7 +9,7 @@ Requires:		rpmlib(FileDigests)				<= 4.6.0-1
 Requires:		rpmlib(PayloadFilesHavePrefix)	<= 4.0-1
 Requires:		rpmlib(PayloadIsXz)				<= 5.2-1
 
-%post:
+%post
 prefix=/opt/amdgpu
 conf=/etc/ld.so.conf.d/20-amdgpu.conf
 

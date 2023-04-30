@@ -6,19 +6,19 @@ License:		GPLv2 and Redistributable, no modification permitted
 Group:			System Environment/Kernel
 ExclusiveArch:	noarch
 
-Requires:		amdgpu-dkms-firmware			=  1:%{version}-%{release}
-Requires:		config(amdgpu-dkms)				=  1:%{version}-%{release}
-Requires:		dkms							>= 1.95
+Requires:		amdgpu-dkms-firmware            =  1:%{version}-%{release}
+Requires:		config(amdgpu-dkms)             =  1:%{version}-%{release}
+Requires:		dkms                            >= 1.95
 
 Requires:		autoconf
 Requires:		automake
 Requires:		gcc
 Requires:		kernel-devel
 Requires:		make
-Requires:		rpmlib(CompressedFileNames)		<= 3.0.4-1
-Requires:		rpmlib(FileDigests)				<= 4.6.0-1
-Requires:		rpmlib(PayloadFilesHavePrefix)	<= 4.0-1
-Requires:		rpmlib(PayloadIsXz)				<= 5.2-1
+Requires:		rpmlib(CompressedFileNames)     <= 3.0.4-1
+Requires:		rpmlib(FileDigests)             <= 4.6.0-1
+Requires:		rpmlib(PayloadFilesHavePrefix)  <= 4.0-1
+Requires:		rpmlib(PayloadIsXz)             <= 5.2-1
 
 %description
 The AMD display driver kernel module in DKMS format for AMD graphics S/W

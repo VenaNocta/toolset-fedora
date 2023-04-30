@@ -4,10 +4,10 @@ Release:		1577590%{?dist}
 License:		MIT
 ExclusiveArch:	noarch
 
-Requires:		rpmlib(CompressedFileNames)		<= 3.0.4-1
-Requires:		rpmlib(FileDigests)				<= 4.6.0-1
-Requires:		rpmlib(PayloadFilesHavePrefix)	<= 4.0-1
-Requires:		rpmlib(PayloadIsXz)				<= 5.2-1
+Requires:		rpmlib(CompressedFileNames)     <= 3.0.4-1
+Requires:		rpmlib(FileDigests)             <= 4.6.0-1
+Requires:		rpmlib(PayloadFilesHavePrefix)  <= 4.0-1
+Requires:		rpmlib(PayloadIsXz)             <= 5.2-1
 
 %post
 prefix=/opt/amdgpu

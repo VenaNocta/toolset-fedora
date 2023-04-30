@@ -1,6 +1,6 @@
 Name:			amdgpu-core
-Version:		5.4.5			#5.4.50405
-Release:		1%{?dist}		#1577590
+Version:		5.4.50405
+Release:		1577590%{?dist}
 License:		MIT
 ExclusiveArch:	noarch
 

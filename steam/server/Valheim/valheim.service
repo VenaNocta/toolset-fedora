@@ -1,0 +1,34 @@
+[Unit]
+Description=Valheim Gameserver
+After=podman.service
+Requires=podman.service
+StartLimitBurst=3
+
+[Service]
+Environment=VALHEIM_SERVER_FOLDER=server0
+Environment=CONFIG_SERVER_NAME="My Server"
+Environment=CONFIG_WORLD_NAME="my_server"
+Environment=CONFIG_SERVER_PW="Passw0rd"
+Environment=CONFIG_PUBLIC=false
+Environment=CONFIG_CROSSPLAY=true
+Environment=CONFIG_SAVEINTERVAL=300
+Environment=CONFIG_BACKUP_AMOUNT=10
+# Service
+LimitNOFILE=65536
+ExecStartPre=-/usr/bin/podman stop service-%N
+ExecStartPre=-/usr/bin/podman rm service-%N
+ExecStart=/usr/bin/podman run -p 2456:2456 -p 2457:2457 \
+  -v /srv/valheim/${VALHEIM_SERVER_FOLDER}/config:/config:z \
+  -e CONFIG_SERVER_NAME -e CONFIG_WORLD_NAME -e CONFIG_SERVER_PW \
+  -e CONFIG_PUBLIC -e CONFIG_CROSSPLAY -e CONFIG_SAVEINTERVAL \
+  -e CONFIG_BACKUP_AMOUNT \
+  --name service-%N localhost/valheim-server:0-212-9
+ExecStop=/usr/bin/podman stop --time=60 --name service-%N
+User=root
+Group=root
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+

@@ -22,7 +22,7 @@ ExecStart=/usr/bin/podman run -p 2456:2456 -p 2457:2457 \
   -e CONFIG_SERVER_NAME -e CONFIG_WORLD_NAME -e CONFIG_SERVER_PW \
   -e CONFIG_PUBLIC -e CONFIG_CROSSPLAY -e CONFIG_SAVEINTERVAL \
   -e CONFIG_BACKUP_AMOUNT \
-  --name service-%N localhost/valheim-server:0-212-9
+  --name service-%N localhost/valheim-server:0-215-2
 ExecStop=/usr/bin/podman stop --time=60 --name service-%N
 User=root
 Group=root

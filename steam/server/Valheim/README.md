@@ -13,4 +13,5 @@ There is also a provided systemd service script which uses the reimported contai
  Version | Release Date | Test Build Date
  ---|---|---
  0-212-9 | ? | 2022-12-20
+ 0-215-2 | 2023-04-12 | -
 

@@ -1,12 +1,14 @@
+SERVER_VERSION = 0-215-2
+
 all: help
 
 help:
 	@printf '\nusuage make ...\n'
 	@printf '  build-image  -> builds container using podman and packs .tar.xz\n'
 	@printf '  start-server -> build container and start test-server\n'
-	@printf '  remove-image -> remove valheim image from local podman archive\n\n'
+	@printf '  remove-image -> remove valheim image from local podman archive\n'
+	@printf '  clean        -> remove all generated files\n\n'
 
-build-image: SERVER_VERSION = 0-212-9
 build-image: build-container.sh Dockerfile
 	SERVER_VERSION=${SERVER_VERSION} ./build-container.sh
 	podman save localhost/valheim-server:${SERVER_VERSION} -o valheim-server-${SERVER_VERSION}.tar
@@ -15,14 +17,17 @@ build-image: build-container.sh Dockerfile
 	@printf '  xz -d -v valheim-server-${SERVER_VERSION}.tar.xz\n'
 	@printf '  podman image load -i valheim-server-${SERVER_VERSION}.tar\n'
 
-start-server: SERVER_VERSION = 0-212-9
 start-server: docker-start-server.sh build-container.sh Dockerfile
 	SERVER_VERSION=${SERVER_VERSION} ./docker-start-server.sh
 
-remove-image: SERVER_VERSION = 0-212-9
 remove-image:
 	podman rm valheim || true
 	podman image rm localhost/valheim-server:${SERVER_VERSION} || true
+
+clean:
+	@printf 'cleaning workspace ...\n'
+	@rm -vf .dockerignore scripts/start-server.sh Dockerfile build-container.sh docker-start-server.sh valheim-server-${SERVER_VERSION}.tar.xz
+	@printf 'finished removing generated files\n'
 
 .dockerignore:
 	@printf 'creating .dockerignore\n'

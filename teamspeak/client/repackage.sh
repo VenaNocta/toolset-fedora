@@ -89,8 +89,6 @@ gen_spec() {
   printf "cp -nr xcbglintegrations/                %%{buildroot}%%{_libdir}%%{_ts_path}/\n" >> $SPEC_FILE
   printf "mkdir -p %%{buildroot}%%{_datadir}/applications/\n"                  >> $SPEC_FILE
   printf "cp -n  com.teamspeak.client-v"${VERSION%%.*}".desktop %%{buildroot}%%{_datadir}/applications/\n" >> $SPEC_FILE
-#  printf "mkdir -p %%{buildroot}%%{_datadir}/icons%%{_ts_path}/\n"             >> $SPEC_FILE
-#  printf "cp -n  styles/default/logo-128x128.png   %%{buildroot}%%{_datadir}/icons%%{_ts_path}/\n" >> $SPEC_FILE
   printf "popd\n"                                                              >> $SPEC_FILE
   printf "# stop the toolkit from doing other stuff\n"                         >> $SPEC_FILE
   printf "exit 0\n"                                                            >> $SPEC_FILE
@@ -102,7 +100,6 @@ gen_spec() {
   printf "%%{_datadir}/applications/com.teamspeak.client-v"${VERSION%%.*}".desktop\n" >> $SPEC_FILE
   printf "%%{_bindir}/ts3client_runscript.sh\n"                                >> $SPEC_FILE
   printf "%%{_libdir}/%%{_ts_path}/\n"                                         >> $SPEC_FILE
-#  printf "%%{_datadir}/icons/%%{_ts_path}/\n"                                  >> $SPEC_FILE
 #  printf "%%license           %%{_libdir}/%%{_ts_path}/LICENSE.txt\n"          >> $SPEC_FILE
   printf "\n"                                                                  >> $SPEC_FILE
   printf "%%changelog\n" >> $SPEC_FILE
@@ -193,12 +190,14 @@ if [ -d $REPACK_PATH ]; then
   printf ">>    (2) data located         » skipping decompression\n"
 else
   printf ">>    (2) data missing         » unpacking archive\n"
-# copying to *-extract folder since installer nukes itself
-  mkdir -p $WORKSPACE"/REPACK/"$ORIG_PACKAGE"-extract/"
-  cp    -n $WORKSPACE"/REPACK/"$ORIG_PACKAGE $WORKSPACE"/REPACK/"$ORIG_PACKAGE"-extract/"
-  chmod +x $WORKSPACE"/REPACK/"$ORIG_PACKAGE"-extract/"$ORIG_PACKAGE
-echo $WORKSPACE"/REPACK/"$ORIG_PACKAGE"-extract/"$ORIG_PACKAGE --accept --noexec --nochown --nodiskspace --quiet --phase2 --target $REPACK_PATH
-  $($WORKSPACE"/REPACK/"$ORIG_PACKAGE"-extract/"$ORIG_PACKAGE --accept --noexec --nochown --nodiskspace --quiet --phase2 --target $REPACK_PATH)
+  mkdir -p $REPACK_PATH
+  chmod +x $WORKSPACE"/REPACK/"$ORIG_PACKAGE
+  $($WORKSPACE"/REPACK/"$ORIG_PACKAGE --tar x -C $REPACK_PATH .)
+  find $REPACK_PATH -type d -exec chmod 755 {} \;
+  find $REPACK_PATH -type f -exec chmod 644 {} \;
+  pushd $REPACK_PATH
+  chmod +x error_report package_inst QtWebEngineProcess ts3client_linux_amd64 ts3client_runscript.sh update
+  popd
 fi
 
 # patch

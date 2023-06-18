@@ -2,6 +2,7 @@ Name:           teamspeak-3-client-bundled
 Version:        3.6.0
 Release:        1
 ExclusiveArch:  x86_64
+Obsoletes:      %{name} <= %{version}
 Summary:        TeamSpeak repackaged for RPM based systems
 
 License:        TeamSpeak License
@@ -9,6 +10,8 @@ URL:            https://teamspeak.com/en/downloads/#client
 Source0:        %{name}-%{version}.tar.xz
 
 AutoReqProv:    no
+BuildRequires:  pxz
+BuildRequires:  sed
 
 %description
 

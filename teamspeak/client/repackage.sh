@@ -37,11 +37,14 @@ gen_spec() {
   printf "Version:        $VERSION\n"                                          >> $SPEC_FILE
   printf "Release:        $RELEASE\n"                                          >> $SPEC_FILE
   printf "ExclusiveArch:  x86_64\n"                                            >> $SPEC_FILE
+  printf "Obsoletes:      %%{name} <= %%{version}\n"                           >> $SPEC_FILE
   printf "Summary:        TeamSpeak repackaged for RPM based systems\n\n"      >> $SPEC_FILE
   printf "License:        $LICENSE\n"                                          >> $SPEC_FILE
   printf "URL:            https://teamspeak.com/en/downloads/#client\n"        >> $SPEC_FILE
   printf "Source0:        %%{name}-%%{version}.tar.xz\n\n"                     >> $SPEC_FILE
   printf "AutoReqProv:    no\n"                                                >> $SPEC_FILE
+  printf "BuildRequires:  pxz\n"                                               >> $SPEC_FILE
+  printf "BuildRequires:  sed\n"                                               >> $SPEC_FILE
 #  printf "#Requires:       <requirement>\n"                                    >> $SPEC_FILE
   printf "\n"                                                                  >> $SPEC_FILE
   printf "%%description\n"                                                     >> $SPEC_FILE
@@ -109,11 +112,11 @@ gen_spec() {
 
 patch_files() {
   printf ">>    (3.1)                    » patching LICENSE.txt\n"
-  printf "  PLEASE UNDERSTAND WE FAILED TO EXTRACT THE LICENSE FILE\n" >  $REPACK_PATH"/LICENSE.txt"
-  printf "FROM THE OFFICIAL INSTALLER WHICH YOU CAN FIND HERE:\n"      >> $REPACK_PATH"/LICENSE.txt"
+  printf "  PLEASE UNDERSTAND WE FAILED TO EXTRACT THE LICENSE FILE\n"         >  $REPACK_PATH"/LICENSE.txt"
+  printf "FROM THE OFFICIAL INSTALLER WHICH YOU CAN FIND HERE:\n"              >> $REPACK_PATH"/LICENSE.txt"
   printf "https://files.teamspeak-services.com/releases/client/"$VERSION"/TeamSpeak"${VERSION%%.*}"-Client-linux_amd64-"$VERSION".run\n" >> $REPACK_PATH"/LICENSE.txt"
-  printf " --- TeamSpeak License ---\n"                                >> $REPACK_PATH"/LICENSE.txt"
-  printf "\n"                                                          >> $REPACK_PATH"/LICENSE.txt"
+  printf " --- TeamSpeak License ---\n"                                        >> $REPACK_PATH"/LICENSE.txt"
+  printf "\n"                                                                  >> $REPACK_PATH"/LICENSE.txt"
 
   DESKTOP_FILE=$REPACK_PATH"/com.teamspeak.client-v"${VERSION%%.*}".desktop"
   printf ">>    (3.2)                    » patching com.teamspeak.client-v"${VERSION%%.*}".desktop\n"

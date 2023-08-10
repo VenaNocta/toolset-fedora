@@ -5,7 +5,7 @@ CLEAN=false
 INFO=false
 # info from manual lookup
 LICENSE="TeamSpeak License"
-VERSION="3.6.0"
+VERSION="3.6.1"
 RELEASE="1"
 # paths
 REPACK_PATH=$WORKSPACE/REPACK/teamspeak-${VERSION%%.*}-client-bundled-${VERSION}
@@ -16,7 +16,7 @@ SOURCES_PATH=$WORKSPACE/SOURCES/teamspeak-${VERSION%%.*}-client-bundled-${VERSIO
 print_help() {
   printf ">>> REPACKAGE TEAMSPEAK\n\n";
   printf "  -c | --clean               ... clean build path\n"
-  printf "  -i | --info                ... show info\n"
+  printf "  -i | --info                ... show info\n"teamspeak
   printf "  ____________________________________________________________________________\n"
   printf "  -h | --help                ... show this help page\n\n";
 }
@@ -63,9 +63,9 @@ gen_spec() {
   printf "pushd  %%{_builddir}/%%{name}-%%{version}\n"                         >> $SPEC_FILE
   printf "mkdir -p %%{buildroot}%%{_bindir}/\n"                                >> $SPEC_FILE
   printf "# update install location\n"                                         >> $SPEC_FILE
-# sed -i -r 'h;s/[^#]*//1;x;s/#.*//;s/"\$\(dirname "\$\(readlink -f "\$\{BASH_SOURCE\[0\]\}"\)"\)"/\/usr\/lib64\/teamspeak\/client-v3\//g;G;s/(.*)\n/\1/' ts3client_runscript.sh
-  printf "sed -i -r 'h;s/[^#]*//1;x;s/#.*//;s/\"\\$\(dirname \"\\$\\(readlink -f \"\\$\\{BASH_SOURCE\\[0\\]\\}\"\\)\"\\)\"/\\/usr\\/lib64\\/teamspeak\\/client-v"${VERSION%%.*}"\\//g;G;s/(.*)\\\\n/\\\\1/' ts3client_runscript.sh \n" >> $SPEC_FILE
-  printf "cp -n  ts3client_runscript.sh            %%{buildroot}%%{_bindir}/\n"   >> $SPEC_FILE
+# sed -i -r 'h;s/[^#]*//1;x;s/#.*//;s/"\$\(dirname "\$\(readlink -f "\$\{BASH_SOURCE\[0\]\}"\)"\)"/\/usr\/lib64\/teamspeak\/client-v3\//g;G;s/(.*)\n/\1/' ts3client
+  printf "sed -i -r 'h;s/[^#]*//1;x;s/#.*//;s/\"\\$\(dirname \"\\$\\(readlink -f \"\\$\\{BASH_SOURCE\\[0\\]\\}\"\\)\"\\)\"/\\/usr\\/lib64\\/teamspeak\\/client-v"${VERSION%%.*}"\\//g;G;s/(.*)\\\\n/\\\\1/' ts3client\n" >> $SPEC_FILE
+  printf "cp -n  ts3client                         %%{buildroot}%%{_bindir}/\n"   >> $SPEC_FILE
   printf "mkdir -p %%{buildroot}%%{_libdir}%%{_ts_path}/\n"                       >> $SPEC_FILE
   printf "cp -n  LICENSE.txt                       %%{buildroot}%%{_libdir}%%{_ts_path}/\n" >> $SPEC_FILE
   printf "cp -n  CHANGELOG                         %%{buildroot}%%{_libdir}%%{_ts_path}/\n" >> $SPEC_FILE
@@ -101,7 +101,7 @@ gen_spec() {
   printf "\n"                                                                  >> $SPEC_FILE
   printf "%%files\n"                                                           >> $SPEC_FILE
   printf "%%{_datadir}/applications/com.teamspeak.client-v"${VERSION%%.*}".desktop\n" >> $SPEC_FILE
-  printf "%%{_bindir}/ts3client_runscript.sh\n"                                >> $SPEC_FILE
+  printf "%%{_bindir}/ts3client\n"                                             >> $SPEC_FILE
   printf "%%{_libdir}/%%{_ts_path}/\n"                                         >> $SPEC_FILE
 #  printf "%%license           %%{_libdir}/%%{_ts_path}/LICENSE.txt\n"          >> $SPEC_FILE
   printf "\n"                                                                  >> $SPEC_FILE
@@ -125,7 +125,7 @@ patch_files() {
   printf "Type=Application\n"                                                  >> $DESKTOP_FILE
   printf "Name=TeamSpeak "${VERSION%%.*}"\n"                                   >> $DESKTOP_FILE
   printf "Comment=TeamSpeak Voice Communication Client\n"                      >> $DESKTOP_FILE
-  printf "Exec=/usr/bin/ts3client_runscript.sh\n"                              >> $DESKTOP_FILE
+  printf "Exec=/usr/bin/ts3client\n"                                           >> $DESKTOP_FILE
   printf "Icon=teamspeak-client\n"                                             >> $DESKTOP_FILE
   printf "StartupNotify=false\n"                                               >> $DESKTOP_FILE
   printf "StartupWMClass=TeamSpeak\n"                                          >> $DESKTOP_FILE
@@ -134,7 +134,7 @@ patch_files() {
   printf "Categories=AudioVideo;Audio;Chat;Network;\n"                         >> $DESKTOP_FILE
 }
 
-pack_autopsy() {
+package() {
   pushd $REPACK_PATH
   tar -I "pxz -9" -cf $WORKSPACE"/SOURCES/teamspeak-"${VERSION%%.*}"-client-bundled-"$VERSION".tar.xz" *
   popd
@@ -199,7 +199,8 @@ else
   find $REPACK_PATH -type d -exec chmod 755 {} \;
   find $REPACK_PATH -type f -exec chmod 644 {} \;
   pushd $REPACK_PATH
-  chmod +x error_report package_inst QtWebEngineProcess ts3client_linux_amd64 ts3client_runscript.sh update
+  mv ts3client_runscript.sh ts3client
+  chmod +x error_report package_inst QtWebEngineProcess ts3client_linux_amd64 ts3client update
   popd
 fi
 
@@ -213,7 +214,7 @@ if [ -f $WORKSPACE"/SOURCES/teamspeak-"${VERSION%%.*}"-client-bundled-"$VERSION"
   printf ">>    (4.1)                    » found teamspeak-"${VERSION%%.*}"-client-bundled-"$VERSION".tar.xz\n"
 else
   printf ">>    (4.1)                    » building teamspeak-"${VERSION%%.*}"-client-bundled-"$VERSION".tar.xz\n"
-  pack_autopsy
+  package
 fi
 
 SPEC_FILE=$WORKSPACE/SPECS/teamspeak-${VERSION%%.*}-client-bundled-${VERSION}.spec

@@ -5,7 +5,7 @@ CLEAN=false
 INFO=false
 # info from manual lookup
 LICENSE="TeamSpeak License"
-VERSION="3.6.1"
+VERSION="3.6.2"
 RELEASE="1"
 # paths
 REPACK_PATH=$WORKSPACE/REPACK/teamspeak-${VERSION%%.*}-client-bundled-${VERSION}

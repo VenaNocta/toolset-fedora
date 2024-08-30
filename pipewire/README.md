@@ -2,6 +2,12 @@
 
 The Pipewire section includes patches that I have developed/collected for my fedora (36/38) setup.
 
+> [!IMPORTANT]
+> For most of the patches to work you have to ditch **WirePlumber** and replace it with [**PipeWire Media Session**](https://pipewire.pages.freedesktop.org/media-session/index.html) (Pipewire's proof of concept implementation).
+
+> [!NOTE]
+> Should you manage to make the patches stored here compatible with **WirePlumber** and want them to be included here, please open a pull request!
+
 ## Content
 
  Path | Description

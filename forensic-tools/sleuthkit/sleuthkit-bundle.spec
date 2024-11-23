@@ -1,5 +1,5 @@
 Name:           sleuthkit
-Version:        4.12.0
+Version:        4.12.1
 Release:        1
 Conflicts:      sleuthkit
 ExclusiveArch:  %{java_arches}
@@ -36,15 +36,16 @@ Summary:        The Sleuth Kit (TSK) - Java Bindings
 BuildRequires:  ant
 BuildRequires:  ant-junit
 Requires:       javapackages-filesystem
-Requires:       java-1.8.0-openjdk
-Requires:       sleuthkit-core = %{version}-%{release}
+%define java_version      17
+%define jdk java-%{java_version}-openjdk
+BuildRequires:  %{jdk}
+#Requires:       java-%{java_version}
+Requires:       (sleuthkit-core = %{version}-%{release} or sleuthkit = %{version})
 
 %description    java-bindings
 The java bindings provided by TSK
 
 %prep
-%define version1 %(printf %{version} | cut --delimiter='.' --fields=1)
-%define version2 %(printf %{version} | cut --delimiter='.' --fields=1,2)
 rm -rf %{_builddir}/%{name}-%{version}/
 mkdir -p %{_builddir}/%{name}-%{version}
 pushd %{_builddir}/%{name}-%{version}
@@ -52,57 +53,33 @@ tar -xf %{_sourcedir}/sleuthkit-%{version}.tar.gz
 popd
 
 %build
-pushd %{_builddir}/%{name}-%{version}/sleuthkit-%{version}/
-JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk ./configure --disable-cppunit --enable-java --prefix %{_builddir}/%{name}-%{version}/target/ --exec-prefix=%{_builddir}/%{name}-%{version}/target/
-JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk JAVACMD=/usr/lib/jvm/java-1.8.0-openjdk/bin/java make
-make install
-popd
-pushd %{_builddir}/%{name}-%{version}/target/
-gzip -r share/man/man1/
-find    lib/ -type l -exec rm {} ';'
-find    lib/ -name '*.la' -exec rm -f {} ';'
-rm -rf  lib/pkgconfig/
-mv      lib/libtsk.so.*     lib/libtsk.so.%{version}
-mv      lib/libtsk_jni.so.* lib/libtsk_jni.so.%{version}
+%define builddir_extract %{_builddir}/%{name}-%{version}/sleuthkit-%{version}/ 
+pushd %{builddir_extract}
+JAVA_HOME=/usr/lib/jvm/%{jdk} ./configure --prefix=/usr --exec-prefix=/usr --disable-cppunit --enable-java
 popd
 
 %install
-rm -rf %{buildroot}
-# copy source files to target
-pushd %{_builddir}/%{name}-%{version}/sleuthkit-%{version}/
+pushd %{builddir_extract}
+%make_install
+popd
+
+# copy source files to buildroot
+pushd %{builddir_extract}/
 mkdir -p %{buildroot}%{_docdir}/sleuthkit/
-cp -nr docs/*                                      %{buildroot}%{_docdir}/sleuthkit/
+cp -nr docs/*                                           %{buildroot}%{_docdir}/sleuthkit/
 mkdir -p %{buildroot}%{_datadir}/licenses/sleuthkit/
-cp -nr licenses/*                                  %{buildroot}%{_datadir}/licenses/sleuthkit/
+cp -nr licenses/*                                       %{buildroot}%{_datadir}/licenses/sleuthkit/
 popd
-# copy target files to target
-pushd %{_builddir}/%{name}-%{version}/target/
-mkdir -p %{buildroot}%{_bindir}/
-cp -nr bin/*                                         %{buildroot}%{_bindir}/
-mkdir -p %{buildroot}%{_libdir}/
-cp -n  lib/libtsk.a                                  %{buildroot}%{_libdir}/
-cp -n  lib/libtsk.so.%{version}                      %{buildroot}%{_libdir}/
-ln -s  libtsk.so.%{version}                          %{buildroot}%{_libdir}/libtsk.so
-ln -s  libtsk.so.%{version}                          %{buildroot}%{_libdir}/libtsk.so.%{version1}
-ln -s  libtsk.so.%{version}                          %{buildroot}%{_libdir}/libtsk.so.%{version2}
-cp -n  lib/libtsk_jni.a                              %{buildroot}%{_libdir}/
-cp -n  lib/libtsk_jni.so.%{version}                  %{buildroot}%{_libdir}/
-ln -s  libtsk_jni.so.%{version}                      %{buildroot}%{_libdir}/libtsk_jni.so
-ln -s  libtsk_jni.so.%{version}                      %{buildroot}%{_libdir}/libtsk_jni.so.%{version1}
-ln -s  libtsk_jni.so.%{version}                      %{buildroot}%{_libdir}/libtsk_jni.so.%{version2}
-mkdir -p %{buildroot}%{_datadir}/tsk/
-cp -nr share/tsk/*                                   %{buildroot}%{_datadir}/tsk/
-# https://docs.fedoraproject.org/en-US/packaging-guidelines/Java/#JNI
-mkdir -p %{buildroot}%{_jnidir}/sleuthkit/
-cp -n  share/java/sleuthkit-%{version}.jar           %{buildroot}%{_jnidir}/sleuthkit/
-ln -s  %{_jnidir}/sleuthkit/sleuthkit-%{version}.jar %{buildroot}%{_libdir}/sleuthkit.jar
-mkdir -p %{buildroot}%{_javadir}/sleuthkit/
-cp -n  share/java/sleuthkit-caseuco-%{version}.jar   %{buildroot}%{_javadir}/sleuthkit/
-ln -s  sleuthkit/sleuthkit-caseuco-%{version}.jar    %{buildroot}%{_javadir}/sleuthkit-caseuco.jar
-mkdir -p %{buildroot}%{_mandir}/
-cp -nr share/man/man1/                               %{buildroot}%{_mandir}/
+
+pushd %{buildroot}
+gzip -r usr/share/man/man1/
+rm -rf  usr/lib/pkgconfig/
+
+## https://docs.fedoraproject.org/en-US/packaging-guidelines/Java/#JNI
+mkdir -p %{buildroot}%{_jnidir}/
+mv usr/share/java/sleuthkit-%{version}.jar              %{buildroot}%{_jnidir}
 popd
-exit 0
+
 
 %clean
 rm -rf %{buildroot}
@@ -142,11 +119,7 @@ rm -rf %{buildroot}
 %{_bindir}/tsk_loaddb
 %{_bindir}/tsk_recover
 %{_bindir}/usnjls
-%{_libdir}/libtsk.a
-%{_libdir}/libtsk.so
-%{_libdir}/libtsk.so.%{version1}
-%{_libdir}/libtsk.so.%{version2}
-%{_libdir}/libtsk.so.%{version}
+%{_includedir}/tsk/
 %docdir %{_docdir}/sleuthkit/
 %{_docdir}/sleuthkit/README.txt
 %license %{_datadir}/licenses/sleuthkit/
@@ -178,18 +151,6 @@ rm -rf %{buildroot}
 %{_mandir}/man1/tsk_loaddb.1.gz
 %{_mandir}/man1/tsk_recover.1.gz
 %{_mandir}/man1/usnjls.1.gz
-
-## sleuthkit-java-bindings
-%files java-bindings
-%{_libdir}/libtsk_jni.a
-%{_libdir}/libtsk_jni.so
-%{_libdir}/libtsk_jni.so.%{version1}
-%{_libdir}/libtsk_jni.so.%{version2}
-%{_libdir}/libtsk_jni.so.%{version}
-%{_jnidir}/sleuthkit/sleuthkit-%{version}.jar
-%{_libdir}/sleuthkit.jar
-%{_javadir}/sleuthkit/sleuthkit-caseuco-%{version}.jar
-%{_javadir}/sleuthkit-caseuco.jar
 %{_datadir}/tsk/sorter/default.sort
 %{_datadir}/tsk/sorter/freebsd.sort
 %{_datadir}/tsk/sorter/images.sort
@@ -198,3 +159,11 @@ rm -rf %{buildroot}
 %{_datadir}/tsk/sorter/solaris.sort
 %{_datadir}/tsk/sorter/windows.sort
 
+## sleuthkit-java-bindings
+%files java-bindings
+/usr/lib/libtsk.a
+/usr/lib/libtsk.so*
+/usr/lib/libtsk_jni.a
+/usr/lib/libtsk_jni.so*
+%{_jnidir}/sleuthkit-%{version}.jar
+%{_javadir}/sleuthkit-caseuco-%{version}.jar

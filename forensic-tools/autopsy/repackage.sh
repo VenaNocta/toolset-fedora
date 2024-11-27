@@ -152,7 +152,7 @@ cat << EOF > $PATCH_PATH/bin_autopsy.patch
 > progdir=/
 > APPNAME=autopsy
 124c112
-< nbexec=\`echo "\$progdir"/../platform*/lib/nbexec\`
+< nbexec=\`echo "\$progdir"/../platform/lib/nbexec\`
 ---
 > nbexec=/usr/lib64/autopsy/platform*/lib/nbexec
 EOF

@@ -53,15 +53,15 @@ Summary:        $PROJECT_NAME repackaged for RPM based systems
 License:        $LICENSE
 URL:            https://www.jetbrains.com/pycharm/
 Source0:        %{name}-%{version}.tar.xz
-
+BuildRequires:  ( coreutils or coreutils-single )
+Requires:       ( coreutils or coreutils-single )
+Requires:       grep
 AutoReqProv:    no
 
 # disable rpmbuild features
+%global debug_package %{nil}
 %define __arch_install_post %{nil}
 %define __os_install_post %{nil}
-%define __find_provides %{nil}
-%define __find_requires %{nil}
-%define _use_internal_dependency_generator 0
 
 %description
 Provides $ARTIFACT_NAME
@@ -71,22 +71,24 @@ Provides $ARTIFACT_NAME
 %package        jbr
 Summary:        $PROJECT_NAME - Java Runtime
 Requires:       %{name} = %{version}-%{release}
+AutoReqProv:    no
 
 %description    jbr
 Provides JetBrain's Java Runtime for $PROJECT_NAME
 
 
 %define builddir_extract %{_builddir}/%{name}-%{version}/
+%define libdir %{_libdir}/jetbrains/%{name}-%{version}
+
 
 %prep
-rm -rf             %{_builddir}/%{name}-%{version}/
-mkdir -p           %{_builddir}/%{name}-%{version}
-pushd        %{_builddir}/%{name}-%{version}
+rm -rf             %{builddir_extract}/
+mkdir -p           %{builddir_extract}
+pushd        %{builddir_extract}
 tar -xf            %{_sourcedir}/%{name}-%{version}.tar.xz
 popd
 
 
-%define libdir %{_libdir}/jetbrains/%{name}-%{version}
 %install
 rm -rf             %{buildroot}
 pushd %{builddir_extract}
@@ -94,6 +96,7 @@ pushd %{builddir_extract}
 # copy files to target
 mkdir -p           %{buildroot}%{libdir}/
 cp -n              Install-Linux-tar.txt                   %{buildroot}%{libdir}/
+cp -n              product-info.json                       %{buildroot}%{libdir}/
 mkdir -p           %{buildroot}%{_datadir}/applications/
 cp -n              com.jetbrains.pycharm-pro.desktop       %{buildroot}%{_datadir}/applications/
 cp -nr             bin/                                    %{buildroot}%{libdir}/
@@ -109,10 +112,12 @@ popd
 # move files
 mkdir -p           %{buildroot}%{_bindir}/
 mv                 %{buildroot}%{libdir}/bin/pycharm-pro   %{buildroot}%{_bindir}/
+chmod +x           %{buildroot}%{_bindir}/pycharm-pro
 mkdir -p           %{buildroot}%{_sysconfdir}/jetbrains/
 mv                 %{buildroot}%{libdir}/bin/pycharm64.vmoptions  %{buildroot}%{_sysconfdir}/jetbrains/
 mkdir -p           %{buildroot}%{_datadir}/icons/jetbrains/
-mv                 %{buildroot}%{libdir}/bin/pycharm.png   %{buildroot}%{_datadir}/icons/jetbrains/pycharm-pro.png
+mkdir -p           %{buildroot}%{_datadir}/icons/hicolor/128x128/apps/
+mv                 %{buildroot}%{libdir}/bin/pycharm.png   %{buildroot}%{_datadir}/icons/hicolor/128x128/apps/pycharm-pro.png
 mkdir -p           %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/
 mv                 %{buildroot}%{libdir}/bin/pycharm.svg   %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/pycharm-pro.svg
 
@@ -124,10 +129,11 @@ rm -rf             %{buildroot}
 %files
 %{_bindir}/pycharm-pro
 %{_datadir}/applications/com.jetbrains.pycharm-pro.desktop
-%{_datadir}/icons/jetbrains/pycharm-pro.png
+%{_datadir}/icons/hicolor/128x128/apps/pycharm-pro.png
 %{_datadir}/icons/hicolor/scalable/apps/pycharm-pro.svg
 %config(noreplace) %{_sysconfdir}/jetbrains/pycharm64.vmoptions
 %{libdir}/Install-Linux-tar.txt
+%{libdir}/product-info.json
 %{libdir}/bin/
 %{libdir}/debug-eggs/
 %{libdir}/help/
@@ -142,7 +148,7 @@ rm -rf             %{buildroot}
 
 
 %changelog
-* Thu Jan 09 2025 VenaNocta <venanocta@gmail.com> - 20250109
+* Thu Jan 13 2025 VenaNocta <venanocta@gmail.com> - 20250113
 - patched for Fedora deploy
 
 EOF
@@ -154,18 +160,16 @@ gen_patch_files() {
   # create .patch files
   cat << EOF > $PATCH_PATH/bin_pycharm.sh.patch
 42a43,44
-> # patch | provide $IDE_HOME as env override
-> if [ -z "$IDE_HOME" ]
+> # patch | provide \$IDE_HOME as env override
+> if [ -z "\$IDE_HOME" ]; then
 43a46
 > fi
-54a58
-> fi
-101a106,107
-> # patch | provide $VM_OPTIONS_FILE as env override
-> if [ -z "$VM_OPTIONS_FILE" ]
-111a118
-> fi
-120a128
+102c105,106
+< 
+---
+> # patch | provide \$VM_OPTIONS_FILE as env override
+> if [ -z "\$VM_OPTIONS_FILE" ]; then
+111a116
 > fi
 EOF
   popd > /dev/null
@@ -191,13 +195,15 @@ EOF
 [Desktop Entry]
 Name=PyCharm Pro Edition
 GenericName=The intelligent Python IDE
-Exec=pycharm-pro
+Exec=pycharm-pro %u
 Terminal=false
+Version=$VERSION
 Icon=pycharm-pro
 Type=Application
 Categories=Development;IDE;
 StartupWMClass=jetbrains-pycharm
-MimeType=text/plain;application/x-python-code;text/x-python;application/xml;text/markdown;
+StartupNotify=true
+MimeType=application/x-python-code;text/x-python;
 EOF
   printf ">>    (3.4)                    » patches applied > removing patches\n"
   rm -r $PATCH_PATH

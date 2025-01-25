@@ -52,6 +52,7 @@ Summary:        $PROJECT_NAME repackaged for RPM based systems
 License:        $LICENSE
 URL:            https://github.com/Winetricks/winetricks
 Source0:        %{name}-%{version}.tar.xz
+BuildArch:      noarch
 
 AutoReqProv:    no
 
@@ -108,7 +109,7 @@ rm -rf             %{buildroot}
 %files gui
 %{_datadir}/applications/winetricks.desktop
 %{_datadir}/icons/hicolor/scalable/apps/winetricks.svg
-%{_datadir}/metainfo/winetricks.appdata.xml
+%{_datadir}/metainfo/io.github.winetricks.Winetricks.metainfo.xml
 
 
 %changelog
@@ -128,7 +129,7 @@ popd > /dev/null
 patch_unpacked() {
 #  printf ">>    (3.1)                    » patching bin/<file>\n"
 #  printf ">>    (3.1)                    » patches applied > removing patches\n"
-  printf ">>    (3.1)                    » no patches no be applied > skipped\n"
+  printf ">>    (3.1)                    » no patches to be applied > skipped\n"
 }
 
 pack_xz() {

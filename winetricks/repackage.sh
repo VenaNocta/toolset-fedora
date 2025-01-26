@@ -9,7 +9,7 @@ PROJECT_NAME="Winetricks"
 ARTIFACT_NAME="winetricks"
 GITHUB_REPO="Winetricks/winetricks"
 LICENSE="LGPL-2.1" 
-RELEASE="1"
+RELEASE="2"
 
 # paths & files
 set_paths(){
@@ -48,11 +48,23 @@ Name:           $ARTIFACT_NAME
 Version:        $VERSION
 Release:        $RELEASE
 Summary:        $PROJECT_NAME repackaged for RPM based systems
+Requires:       wine-common
+Requires:       cabextract gzip unzip wget which
 
 License:        $LICENSE
 URL:            https://github.com/Winetricks/winetricks
 Source0:        %{name}-%{version}.tar.xz
+
 BuildArch:      noarch
+
+# need arch-specific wine, not available everywhere:
+# - adopted from wine.spec
+ExclusiveArch:  %{ix86} x86_64 %{arm} aarch64
+# - explicitly not ppc64* to hopefully not confuse koschei
+ExcludeArch:    ppc64 ppc64le
+
+BuildRequires:  make
+BuildRequires:  desktop-file-utils
 
 AutoReqProv:    no
 
@@ -74,6 +86,8 @@ Provides bash-completion for $PROJECT_NAME
 %package        gui
 Summary:        $PROJECT_NAME - gui
 Requires:       %{name} = %{version}-%{release}
+Requires:       hicolor-icon-theme
+Requires:       (kdialog if kdialog else zenity)
 
 %description    gui
 Provides gui & .desktop file for $PROJECT_NAME

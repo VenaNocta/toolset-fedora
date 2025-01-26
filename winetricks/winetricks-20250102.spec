@@ -1,12 +1,24 @@
 Name:           winetricks
 Version:        20250102
-Release:        1
+Release:        2
 Summary:        Winetricks repackaged for RPM based systems
+Requires:       wine-common
+Requires:       cabextract gzip unzip wget which
 
 License:        LGPL-2.1
 URL:            https://github.com/Winetricks/winetricks
 Source0:        %{name}-%{version}.tar.xz
+
 BuildArch:      noarch
+
+# need arch-specific wine, not available everywhere:
+# - adopted from wine.spec
+ExclusiveArch:  %{ix86} x86_64 %{arm} aarch64
+# - explicitly not ppc64* to hopefully not confuse koschei
+ExcludeArch:    ppc64 ppc64le
+
+BuildRequires:  make
+BuildRequires:  desktop-file-utils
 
 AutoReqProv:    no
 
@@ -28,6 +40,8 @@ Provides bash-completion for Winetricks
 %package        gui
 Summary:        Winetricks - gui
 Requires:       %{name} = %{version}-%{release}
+Requires:       hicolor-icon-theme
+Requires:       (kdialog if kdialog else zenity)
 
 %description    gui
 Provides gui & .desktop file for Winetricks

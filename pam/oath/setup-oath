@@ -1,0 +1,28 @@
+#!/usr/bin/sh
+
+HOSTNAME=$(hostname)
+SECRET_PATH=${HOME}/.ssh/oath_secret
+
+create_secret() {
+  printf 'No Secret found, creating ...\n' &&
+  SECRET=$(head -10 /dev/urandom | sha512sum | cut -b 1-30) &&
+  printf 'HOTP/T30/6 '${USERNAME}' - '${SECRET} > ${SECRET_PATH} &&
+  printf 'Secret created!\n\n'
+}
+
+load_secret() {
+  printf 'Secret found, loading...\n\n' &&
+  SECRET=$(cat ${SECRET_PATH}) &&
+  SECRET=${SECRET#"HOTP/T30/6 ${USERNAME} - "}
+}
+
+test -f ${SECRET_PATH} && load_secret || create_secret
+
+SECRET_B32=$(printf ${SECRET} | sed 's/\([0-9A-F]\{2\}\)/\\\\\\x\1/gI' | xargs printf | base32) 
+
+printf 'Scan the code to add it to your authenticator!\n\n'
+
+qrencode -t UTF8 'otpauth://totp/'${USERNAME}'@'${HOSTNAME}'?secret='${SECRET_B32}
+
+# You may use this tool to display the current code ...
+#oathtool --totp -v ${SECRET}

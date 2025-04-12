@@ -8,11 +8,11 @@ dnf install pam_oath
 
 ## Secure Cockpit
 
-To enable MFA for all admin users change the `/etc/pam.d/cockpit` config file to enclude following lines before the password validation:
+To enable MFA for all admin users change the `/etc/pam.d/cockpit` config file to enclude following lines **after** the password validation:
 
 ```
 auth    [default=1 success=ignore]  pam_succeed_if.so user ingroup wheel
-auth    requisite                   pam_oath.so alwaysok usersfile=${HOME}/.ssh/oath_secret window=30 digits=6
+auth    requisite                   pam_oath.so usersfile=/home/${USER}/.ssh/oath_secret window=30 digits=6
 ```
 
 ## User Setup

@@ -28,3 +28,4 @@ qrencode -t UTF8 'otpauth://totp/'${USERNAME}'@'${HOSTNAME}'?secret='${SECRET_B3
 
 # You may use this tool to display the current code ...
 #oathtool --totp -v ${SECRET}
+

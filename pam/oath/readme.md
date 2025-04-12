@@ -17,7 +17,13 @@ auth    requisite                   pam_oath.so alwaysok usersfile=${HOME}/.ssh/
 
 ## User Setup
 
-Use the script ... if you want to be able to show the token you can install the oathtool:
+The script requires `qrencode` to display a scanable code.
+
+```bash
+dnf install qrencode
+```
+
+If you want to be able to show the token you can install the `oathtool`.
 
 ```bash
 dnf install oathtool

@@ -4,15 +4,17 @@ HOSTNAME=$(hostname)
 SECRET_PATH=${HOME}/.ssh/oath_secret
 
 create_secret() {
-  printf 'No Secret found, creating ...\n' &&
-  SECRET=$(head -10 /dev/urandom | sha512sum | cut -b 1-30) &&
-  printf 'HOTP/T30/6 '${USERNAME}' - '${SECRET} > ${SECRET_PATH} &&
+  printf 'No Secret found, creating ...\n'
+  SECRET=$(head -10 /dev/urandom | sha512sum | cut -b 1-30)
+  touch ${SECRET_PATH}
+  chmod 600 ${SECRET_PATH}
+  printf 'HOTP/T30/6 '${USERNAME}' - '${SECRET} > ${SECRET_PATH}
   printf 'Secret created!\n\n'
 }
 
 load_secret() {
-  printf 'Secret found, loading...\n\n' &&
-  SECRET=$(cat ${SECRET_PATH}) &&
+  printf 'Secret found, loading...\n\n'
+  SECRET=$(cat ${SECRET_PATH})
   SECRET=${SECRET#"HOTP/T30/6 ${USERNAME} - "}
 }
 

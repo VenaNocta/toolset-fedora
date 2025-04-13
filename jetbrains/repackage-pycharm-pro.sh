@@ -62,6 +62,7 @@ AutoReqProv:    no
 %global debug_package %{nil}
 %define __arch_install_post %{nil}
 %define __os_install_post %{nil}
+%define _build_id_links none
 
 %description
 Provides $ARTIFACT_NAME

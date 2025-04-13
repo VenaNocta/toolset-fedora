@@ -15,6 +15,7 @@ AutoReqProv:    no
 %global debug_package %{nil}
 %define __arch_install_post %{nil}
 %define __os_install_post %{nil}
+%define _build_id_links none
 
 %description
 Provides phpstorm-pro
@@ -101,6 +102,6 @@ rm -rf             %{buildroot}
 
 
 %changelog
-* Thu Apr 13 2025 VenaNocta <venanocta@gmail.com> - 20250413
+* Sun Apr 13 2025 VenaNocta <venanocta@gmail.com> - 20250413
 - patched for Fedora deploy
 

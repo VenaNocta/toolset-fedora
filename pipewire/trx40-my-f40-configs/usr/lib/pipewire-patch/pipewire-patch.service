@@ -1,0 +1,21 @@
+[Unit]
+Description=PipeWire Patch
+Wants=pipewire.service pipewire-session-manager.service
+After=pipewire.service pipewire-session-manager.service
+
+[Service]
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+RestrictNamespaces=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+Type=simple
+ExecStartPre=/bin/sleep 5
+ExecStart=/usr/bin/sh /usr/lib/pipewire-patch/link-virtual-nodes.sh
+Restart=on-failure
+Slice=session.slice
+
+[Install]
+WantedBy=pipewire-session-manager.service
+

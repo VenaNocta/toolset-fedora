@@ -1,7 +1,7 @@
 %global origin          openjdk
 %global origin_nice     OpenJDK
 %global java_version 8
-%global pkg_type jre
+%global pkg_type jdk
 Name:           temurin-%{java_version}-%{pkg_type}-alternatives
 Version:        1
 Release:        1

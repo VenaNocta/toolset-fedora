@@ -1,6 +1,6 @@
 # Java Alternatives
 
-Since Fedora 42 moved stopped supporting older java versions we are required to install them from Temurin, which is fine, **but** Temurin does not provide all the alternatives paths that we have grown to rely on! - so this is what to packages herein provide
+Since the Fedora 42 move, RedHat stopped supporting older java versions. Therefore we are now required to install them from Temurin, <ins>which is fine</ins>, **but** Temurin does not provide all the alternatives paths that we have grown to rely on! - so this is what to packages herein provide
 
 ## Build-JRE
 

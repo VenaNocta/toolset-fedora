@@ -10,7 +10,7 @@ ARTIFACT_NAME="phpstorm-pro"
 GITHUB_REPO="<org>/<repo>"
 # https://download-cdn.jetbrains.com/webide/PhpStorm-2024.3.5.tar.gz
 LICENSE="«proprietary»"
-VERSION="2025.2.4"
+VERSION="2025.3"
 RELEASE="1"
 
 # paths & files

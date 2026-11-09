@@ -1,0 +1,31 @@
+context.modules = [
+  {   name = libpipewire-module-roc-source
+      args = {
+          local.ip = 0.0.0.0
+          fec.code = disable
+          sess.latency.msec = 50
+          local.source.port = 10001
+          local.repair.port = 10002
+          local.control.port = 10003
+          source.name = "VIA15 Mic"
+          source.props = {
+             node.name = "via15-source"
+             media.class = Audio/Source
+          }
+      }
+  }
+  {   name = libpipewire-module-roc-sink
+      args = {
+          fec.code = disable
+          remote.ip = 10.20.128.3
+          remote.source.port = 10001
+          remote.repair.port = 10002
+          remote.control.port = 10003
+          sink.name = "VIA15 Speaker"
+          sink.props = {
+             node.name = "via15-sink"
+          }
+      }
+  }
+]
+
